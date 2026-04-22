@@ -175,7 +175,7 @@ class ThongKeController extends Controller
         ]);
     }
 
-    /* ================== DASHBOARD ================== */
+    /* ================== DASHBOARD ================= */
 
     public function getDashboardData()
     {

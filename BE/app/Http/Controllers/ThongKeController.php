@@ -11,7 +11,7 @@ use App\Models\LichLamViec;
 
 class ThongKeController extends Controller
 {
-    /* ================== COMMON ================== */
+    /* ================== COMMON ================= */
 
     private function checkPermission($id)
     {

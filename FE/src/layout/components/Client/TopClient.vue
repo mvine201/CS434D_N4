@@ -103,7 +103,7 @@
                             <hr class="dropdown-divider">
                         </li>
                         <li>
-                            <a class="dropdown-item text-danger" href="javascript:;" @click="logout()">
+                            <a v-on:click="logout()" class="dropdown-item text-danger" href="javascript:;" @click="logout()">
                                 <i class="fas fa-sign-out-alt me-2 text-danger"></i>
                                 <span>Đăng xuất</span>
                             </a>

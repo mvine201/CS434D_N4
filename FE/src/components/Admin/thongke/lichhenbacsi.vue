@@ -1,167 +1,121 @@
 <template>
-  <div class="row justify-content-center">
-    <div class="card shadow-sm">
-      <div class="card-header text-white">
-        <div class="row">
-          <div class="col text-center">
-            <h5><b>THỐNG KÊ LỊCH HẸN THEO BÁC SĨ</b></h5>
-          </div>
-        </div>
+  <div class="container">
+    <h2>📅 Lịch hẹn bác sĩ</h2>
+
+    <!-- Chọn ngày -->
+    <div class="date-picker">
+      <label>Chọn ngày:</label>
+      <input type="date" v-model="selectedDate" />
+    </div>
+
+    <!-- Danh sách lịch -->
+    <div class="appointment-list">
+      <h3>Lịch hẹn ngày {{ selectedDate }}</h3>
+      <div v-if="filteredAppointments.length === 0">
+        Không có lịch hẹn
       </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col-lg-1"></div>
-          <div class="col-lg-1 text-end">
-            <p class="mt-2">Từ Ngày:</p>
-          </div>
-          <div class="col-lg-3">
-            <input v-model="thong_ke.begin" type="date" class="form-control">
-          </div>
-          <div class="col-lg-1 text-end">
-            <p class="mt-2">Đến Ngày:</p>
-          </div>
-          <div class="col-lg-3">
-            <input v-model="thong_ke.end" type="date" class="form-control">
-          </div>
-          <div class="col-lg-2">
-            <button @click="loadData()" class="btn btn-primary">Thống Kê</button>
-          </div>
-        </div>
+
+      <div
+        v-for="(item, index) in filteredAppointments"
+        :key="index"
+        class="appointment-card"
+      >
+        <p><strong>Bệnh nhân:</strong> {{ item.patient }}</p>
+        <p><strong>Bác sĩ:</strong> {{ item.doctor }}</p>
+        <p><strong>Giờ:</strong> {{ item.time }}</p>
       </div>
     </div>
-  </div>
-  <div class="row justify-content-center mt-3">
-    <div class="col-lg-4">
-      <div class="card">
-        <div class="card-body">
-          <div class="table-responsive">
-            <table class="table table-bordered table-hover">
-              <thead>
-                <tr>
-                  <th class="text-center align-middle">#</th>
-                  <th class="text-center align-middle">Bác Sĩ</th>
-                  <th class="text-center align-middle">Số lượng lịch hẹn</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="lichHenData.length === 0">
-                  <td colspan="3" class="text-center align-middle py-5 text-muted">
-                    <i class="bx bx-info-circle fs-1 mb-3 d-block"></i>
-                    <p class="mb-0">Chưa có dữ liệu thống kê</p>
-                    <small>Vui lòng chọn khoảng thời gian và nhấn "Thống Kê"</small>
-                  </td>
-                </tr>
-                <tr v-else v-for="(value, index) in lichHenData" :key="index">
-                  <td class="text-center align-middle">{{ index + 1 }}</td>
-                  <td class="align-middle">
-                    <span>{{ value.ho_ten }}</span>
-                  </td>
-                  <td class="text-center align-middle">
-                    <span class="btn btn-primary w-100 text-center align-middle">
-                      {{ value.tong_lich_hen }}
-                    </span>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-8">
-      <div class="card">
-        <div class="card-body">
-          <Pie v-if="loaded" :data="chartData" :options="chartOptions" />
-        </div>
-      </div>
+
+    <!-- Form đặt lịch -->
+    <div class="form">
+      <h3>Đặt lịch mới</h3>
+
+      <input v-model="newAppointment.patient" placeholder="Tên bệnh nhân" />
+      <input v-model="newAppointment.doctor" placeholder="Tên bác sĩ" />
+      <input v-model="newAppointment.time" type="time" />
+
+      <button @click="addAppointment">Đặt lịch</button>
     </div>
   </div>
 </template>
 
-<script>
-import { createToaster } from "@meforma/vue-toaster";
-const toaster = createToaster({
-  position: "top-right",
+<script setup>
+import { ref, computed } from "vue";
+
+const selectedDate = ref(new Date().toISOString().split("T")[0]);
+
+const appointments = ref([
+  {
+    date: selectedDate.value,
+    patient: "Nguyễn Văn A",
+    doctor: "Dr. Minh",
+    time: "09:00",
+  },
+]);
+
+const newAppointment = ref({
+  patient: "",
+  doctor: "",
+  time: "",
 });
-import { Pie } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement } from 'chart.js'
-import baseRequestAdmin from '../../../core/baseRequestAdmin';
 
-ChartJS.register(Title, Tooltip, Legend, ArcElement)
+const filteredAppointments = computed(() =>
+  appointments.value.filter((a) => a.date === selectedDate.value)
+);
 
-export default {
-  components: { Pie },
-  data() {
-    return {
-      loaded: false,
-      thong_ke: { begin: '', end: '' },
-      lichHenData: [],
-      arrayTenBacSi: [],
-      arrayTongLichHen: [],
-      chartData: {
-        labels: [],
-        datasets: [
-          {
-            backgroundColor: [
-              "#FF6384",
-              "#36A2EB",
-              "#FFCE56",
-              "#4BC0C0",
-              "#9966FF",
-              "#FF9F40"
-            ],
-            data: []
-          }
-        ]
-      },
-      chartOptions: {
-        responsive: true,
-        plugins: {
-          legend: {
-            position: 'right'
-          }
-        }
-      }
-    }
-  },
-  async mounted() {
-    this.loaded = false;
-    this.thong_ke.begin = '';
-    this.thong_ke.end = '';
-  },
-  methods: {
-    loadData() {
-        this.loaded = false;
-        baseRequestAdmin.post('admin/thong-ke/lich-hen-theo-bac-si', {
-          begin: this.thong_ke.begin,
-          end: this.thong_ke.end
-        }, {
-          headers: {
-            Authorization: "Bearer " + localStorage.getItem("token_admin"),
-          }
-        })
-          .then(res => {
-            if (res.data.status) {
-            this.lichHenData = res.data.data;
-            this.arrayTenBacSi = res.data.array_ten_bac_si;
-            this.arrayTongLichHen = res.data.array_tong_lich_hen;
-            this.chartData.labels = this.arrayTenBacSi;
-            this.chartData.datasets[0].data = this.arrayTongLichHen;
-            this.loaded = true;
-            this.$toast.success(res.data.message);
-            } else {
-              this.$toast.error(res.data.message);
-            }
-            
-          })
-          .catch((err) => {
-            this.loaded = false;
-            const listErr = err.response.data.errors;
-            Object.values(listErr).forEach((error) => {
-              this.$toast.error(error[0]);
-            });
-          });
-    }
-  },
-}
+const addAppointment = () => {
+  if (
+    !newAppointment.value.patient ||
+    !newAppointment.value.doctor ||
+    !newAppointment.value.time
+  ) {
+    alert("Vui lòng nhập đầy đủ thông tin");
+    return;
+  }
+
+  appointments.value.push({
+    date: selectedDate.value,
+    ...newAppointment.value,
+  });
+
+  newAppointment.value = {
+    patient: "",
+    doctor: "",
+    time: "",
+  };
+};
 </script>
+
+<style scoped>
+.container {
+  max-width: 600px;
+  margin: auto;
+  font-family: Arial;
+}
+
+.date-picker {
+  margin-bottom: 20px;
+}
+
+.appointment-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.form input {
+  display: block;
+  margin-bottom: 10px;
+  padding: 8px;
+  width: 100%;
+}
+
+button {
+  padding: 10px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+</style>

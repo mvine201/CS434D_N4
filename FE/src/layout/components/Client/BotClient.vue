@@ -17,11 +17,11 @@
                             </div>
                             <div class="d-flex align-items-center mb-3 p-2 rounded bg-secondary bg-opacity-25">
                                 <i class="fa-solid fa-phone me-3 text-success fs-5"></i>
-                                <span class="text-light fw-semibold">0905523543</span>
+                                <span class="text-light fw-semibold">0905685943</span>
                             </div>
                             <div class="d-flex align-items-center mb-3 p-2 rounded bg-secondary bg-opacity-25">
                                 <i class="fa-solid fa-envelope me-3 text-primary fs-5"></i>
-                                <span class="text-light">quoclongdng@gmail.com</span>
+                                <span class="text-light">vietp1991@gmail.com</span>
                             </div>
                             <div class="d-flex align-items-center p-2 rounded bg-secondary bg-opacity-25">
                                 <i class="fa-solid fa-clock me-3 text-warning fs-5"></i>

@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 
 class PhieuDatLichController extends Controller
 {
+    // Update backend by CONGQUOC
     public function datLichKhamBenhNhan(Request $request)
     {
         $user = Auth::guard('sanctum')->user();
@@ -340,5 +341,5 @@ class PhieuDatLichController extends Controller
                 'message' => 'Không tìm thấy hóa đơn'
             ]);
         }
-        }
+    }
 }

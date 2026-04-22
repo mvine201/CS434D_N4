@@ -8,7 +8,7 @@
       <input type="date" v-model="selectedDate" />
     </div>
 
-    <!-- Danh sách lịch -->
+    <!-- Danh sách lịch ->
     <div class="appointment-list">
       <h3>Lịch hẹn ngày {{ selectedDate }}</h3>
       <div v-if="filteredAppointments.length === 0">

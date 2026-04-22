@@ -113,7 +113,7 @@ const addAppointment = () => {
 
 button {
   padding: 10px;
-  background: #4caf50;
+  background: #4caf49;
   color: white;
   border: none;
   cursor: pointer;
